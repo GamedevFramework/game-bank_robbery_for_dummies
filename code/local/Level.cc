@@ -30,6 +30,7 @@
 #include <gf/VectorOps.h>
 
 namespace brfd {
+
   static constexpr int TileSize = 256;
 
   // see tileset.png
@@ -132,18 +133,16 @@ namespace brfd {
   Level::Level(gf::ResourceManager& resources)
   : m_layer({ Size, Size })
   , m_carTexture(resources.getTexture("cars.png"))
-  , m_carGeometry(getCarGeometry())
-  , m_buildingGeometry(gf::Vector2f(2 * TileSize, 2 * TileSize))
-  , m_occupiedRoadGeometry(gf::Vector2f(TileSize, TileSize))
   {
     m_layer.setTileSize({ TileSize, TileSize });
+    m_layer.setTilesetTileSize({ TileSize, TileSize });
     m_layer.setTexture(resources.getTexture("tileset.png"));
   }
 
   static constexpr float OccupiedRatio = 0.25f;
   static constexpr float SpecialOccupiedRatio = 0.2f;
 
-  void Level::generateLevel(gf::Random& random, gf::PhysicsModel& physics) {
+  void Level::generateLevel(gf::Random& random, gfcp::Space& physics) {
     /*
      * Step 1: the map
      */
@@ -413,7 +412,7 @@ namespace brfd {
 
       int number = random.computeUniformInteger(0, 9);
 
-      m_cars.push_back(StaticCar(number, carPosition, carAngle, m_carGeometry));
+      m_cars.push_back(StaticCar(number, carPosition, carAngle));
     }
 
     /*
@@ -422,20 +421,20 @@ namespace brfd {
 
     for (auto& car : m_cars) {
       physics.addBody(car.getBody());
+      auto shape = computeCarShape(car.getBody());
+      physics.addShape(shape);
     }
+
+    gfcp::Body body = gfcp::Body::makeStatic();
+    physics.addBody(body);
 
     for (int i = 2; i < Size - 2; i += 3) {
       for (int j = 2; j < Size - 2; j += 3) {
         gf::Vector2f position(static_cast<float>(i), static_cast<float>(j));
 
-        gf::PhysicsBody body(m_buildingGeometry, gf::PhysicsBody::Static);
-        body.setPosition(position * TileSize + TileSize);
-        m_buildings.push_back(body);
+        gfcp::PolygonShape shape(body, gf::RectF::fromCenterSize(position * TileSize + TileSize, gf::vec(2 * TileSize, 2 * TileSize)), 1.0f);
+        physics.addShape(shape);
       }
-    }
-
-    for (auto& building : m_buildings) {
-      physics.addBody(building);
     }
 
     for (int i = 0; i < Size; ++i) {
@@ -443,16 +442,12 @@ namespace brfd {
         if (map.data[i][j].type == BlockType::Grass || map.data[i][j].type == BlockType::Occupied) {
           gf::Vector2f position(static_cast<float>(i), static_cast<float>(j));
 
-          gf::PhysicsBody body(m_occupiedRoadGeometry, gf::PhysicsBody::Static);
-          body.setPosition(position * TileSize + TileSize / 2);
-          m_occupiedRoads.push_back(body);
+          gfcp::PolygonShape shape(body, gf::RectF::fromCenterSize(position * TileSize + TileSize / 2, gf::vec(TileSize, TileSize)), 1.0f);
+          physics.addShape(shape);
         }
       }
     }
 
-    for (auto& occupiedRoad : m_occupiedRoads) {
-      physics.addBody(occupiedRoad);
-    }
   }
 
   void Level::update(gf::Time time) {

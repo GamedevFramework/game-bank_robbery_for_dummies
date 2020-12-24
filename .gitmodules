@@ -1,0 +1,3 @@
+[submodule "vendor/gf-chipmunk"]
+	path = vendor/gf-chipmunk
+	url = https://github.com/GamedevFramework/gf-chipmunk.git

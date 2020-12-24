@@ -23,10 +23,11 @@
 #include <vector>
 
 #include <gf/Entity.h>
-#include <gf/PhysicsModel.h>
 #include <gf/Random.h>
 #include <gf/ResourceManager.h>
 #include <gf/TileLayer.h>
+
+#include <gfcp/Physics.h>
 
 #include "Car.h"
 
@@ -39,7 +40,7 @@ namespace brfd {
 
     Level(gf::ResourceManager& resources);
 
-    void generateLevel(gf::Random& random, gf::PhysicsModel& physics);
+    void generateLevel(gf::Random& random, gfcp::Space& physics);
 
     gf::Vector2f getStartingPosition() const {
       return m_home;
@@ -88,14 +89,7 @@ namespace brfd {
     float m_homeStartingAngle = 0.0f;
 
     gf::Texture& m_carTexture;
-    gf::PolygonGeometry m_carGeometry;
     std::vector<StaticCar> m_cars;
-
-    gf::PolygonGeometry m_buildingGeometry;
-    std::vector<gf::PhysicsBody> m_buildings;
-
-    gf::PolygonGeometry m_occupiedRoadGeometry;
-    std::vector<gf::PhysicsBody> m_occupiedRoads;
   };
 
 }

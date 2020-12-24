@@ -23,13 +23,14 @@
 #include <gf/Event.h>
 #include <gf/MessageManager.h>
 #include <gf/ModelContainer.h>
-#include <gf/PhysicsModel.h>
 #include <gf/RenderWindow.h>
 #include <gf/ResourceManager.h>
 #include <gf/Unused.h>
 #include <gf/ViewContainer.h>
 #include <gf/Views.h>
 #include <gf/Window.h>
+
+#include <gfcp/Physics.h>
 
 #include "local/Car.h"
 #include "local/Level.h"
@@ -116,7 +117,9 @@ int main() {
   // add models
   gf::ModelContainer models;
 
-  gf::PhysicsModel physics;
+  gfcp::Space physics;
+  physics.setDamping(0.8f);
+  physics.setIterations(30);
   models.addModel(physics);
 
   brfd::StoryModel story(messages);

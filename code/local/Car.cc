@@ -53,12 +53,16 @@ namespace brfd {
     { -     CarHalfWidth, - X * CarHalfHeight },
   };
 
-  gf::Polygon getCarGeometry() {
-    return gf::Polygon(Geometry);
+  static constexpr float CarMass = 1000.0f;
+
+  gfcp::PolygonShape computeCarShape(gfcp::Body body) {
+    gfcp::PolygonShape shape(body, Geometry, gf::identityTransform(), 1.0f);
+    shape.setElasticity(0.0f);
+    shape.setFriction(0.1f);
+    return shape;
   }
 
-
-  HeroCar::HeroCar(gf::MessageManager& messages, gf::ResourceManager& resources, gf::PhysicsModel& physics)
+  HeroCar::HeroCar(gf::MessageManager& messages, gf::ResourceManager& resources, gfcp::Space& physics)
   : gf::Entity(1)
   , m_messages(messages)
   , m_texture(resources.getTexture("cars.png"))
@@ -66,13 +70,12 @@ namespace brfd {
   , m_turn(gf::AngularMove::None)
   , m_velocity(0)
   , m_angle(0)
-  , m_geometry(getCarGeometry())
-  , m_body(m_geometry)
+  , m_body(CarMass, gfcp::computeMomentForPoly(CarMass, Geometry, gf::vec(0.0f, 0.0f), 0.0f))
   {
     m_texture.setSmooth();
-    m_body.setLinearDamping(0.2f);
-    m_body.setDensity(10.0f);
     physics.addBody(m_body);
+    auto shape = computeCarShape(m_body);
+    physics.addShape(shape);
   }
 
   void HeroCar::startAt(gf::Vector2f position, float angle) {
@@ -93,7 +96,7 @@ namespace brfd {
     msg.position = position;
     m_messages.sendMessage(&msg);
 
-    float absoluteVelocity = gf::euclideanLength(m_body.getLinearVelocity());
+    float absoluteVelocity = gf::euclideanLength(m_body.getVelocity());
     m_velocity =  m_velocity > 0 ? absoluteVelocity : -absoluteVelocity;
 
     m_velocity += gf::linearFactor(m_move) * LinearAcceleration * dt;
@@ -104,8 +107,9 @@ namespace brfd {
 
     m_angle += gf::sign(m_velocity) * gf::angularFactor(m_turn) * AngularSpeed * factor * dt;
 
-    m_body.setLinearVelocity(gf::unit(m_angle) * m_velocity);
+    m_body.setVelocity(gf::unit(m_angle) * m_velocity);
     m_body.setAngle(m_angle);
+    m_body.setAngularVelocity(0.0f);
   }
 
   static constexpr gf::Vector2f TileScale(CarWidth / TilesetWidth, CarHeight / TilesetHeight);
@@ -122,23 +126,22 @@ namespace brfd {
   }
 
 
-  StaticCar::StaticCar(int number, gf::Vector2f position, float angle, const gf::PhysicsGeometry& geometry)
-  : m_body(geometry, gf::PhysicsBody::Dynamic)
+  StaticCar::StaticCar(int number, gf::Vector2f position, float angle)
+  : m_body(CarMass, gfcp::computeMomentForPoly(CarMass, Geometry, gf::vec(0.0f, 0.0f), 0.0f))
   {
     m_textureRect = gf::RectF::fromPositionSize({ (number % 4) * CarWidth / TilesetWidth, (number / 4) * CarHeight / TilesetHeight }, { CarWidth / TilesetWidth, CarHeight / TilesetHeight });
     m_body.setPosition(position);
     m_body.setAngle(angle);
-    m_body.setDensity(10.0f);
-    m_body.setLinearDamping(5.0f);
   }
 
   void StaticCar::update(gf::Time time) {
     gf::unused(time);
 
     float angle = m_body.getAngle();
-    gf::Vector2f velocity = m_body.getLinearVelocity();
+    gf::Vector2f velocity = m_body.getVelocity();
     gf::Vector2f normal = gf::unit(angle + gf::Pi2);
-    m_body.setLinearVelocity(velocity - gf::dot(velocity, normal) * normal);
+    m_body.setVelocity(velocity - gf::dot(velocity, normal) * normal);
+    m_body.setAngularVelocity(0.0f);
   }
 
 }

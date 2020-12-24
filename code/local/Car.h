@@ -24,20 +24,20 @@
 #include <gf/Model.h>
 #include <gf/Move.h>
 #include <gf/Rect.h>
-#include <gf/PhysicsBody.h>
-#include <gf/PhysicsModel.h>
 #include <gf/Polygon.h>
 #include <gf/ResourceManager.h>
 #include <gf/Texture.h>
 #include <gf/Vector.h>
 
+#include <gfcp/Physics.h>
+
 namespace brfd {
 
-  gf::Polygon getCarGeometry();
+  gfcp::PolygonShape computeCarShape(gfcp::Body body);
 
   class HeroCar : public gf::Entity {
   public:
-    HeroCar(gf::MessageManager& messages, gf::ResourceManager& resources, gf::PhysicsModel& physics);
+    HeroCar(gf::MessageManager& messages, gf::ResourceManager& resources, gfcp::Space& physics);
 
     void startAt(gf::Vector2f position, float angle);
 
@@ -79,23 +79,22 @@ namespace brfd {
     float m_velocity;
     float m_angle;
 
-    gf::PolygonGeometry m_geometry;
-    gf::PhysicsBody m_body;
+    gfcp::Body m_body;
   };
 
   class StaticCar : public gf::Model {
   public:
-    StaticCar(int number, gf::Vector2f position, float angle, const gf::PhysicsGeometry& geometry);
+    StaticCar(int number, gf::Vector2f position, float angle);
 
     const gf::RectF& getTextureRect() const {
       return m_textureRect;
     }
 
-    const gf::PhysicsBody& getBody() const {
+    const gfcp::Body& getBody() const {
       return m_body;
     }
 
-    gf::PhysicsBody& getBody() {
+    gfcp::Body& getBody() {
       return m_body;
     }
 
@@ -103,7 +102,7 @@ namespace brfd {
 
   private:
     gf::RectF m_textureRect;
-    gf::PhysicsBody m_body;
+    gfcp::Body m_body;
   };
 
 }
