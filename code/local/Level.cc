@@ -132,11 +132,13 @@ namespace brfd {
 
   Level::Level(gf::ResourceManager& resources)
   : m_layer({ Size, Size })
+  , m_tilesetId(m_layer.createTilesetId())
   , m_carTexture(resources.getTexture("cars.png"))
   {
     m_layer.setTileSize({ TileSize, TileSize });
-    m_layer.setTilesetTileSize({ TileSize, TileSize });
-    m_layer.setTexture(resources.getTexture("tileset.png"));
+    gf::Tileset& tileset = m_layer.getTileset(m_tilesetId);
+    tileset.setTileSize({ TileSize, TileSize });
+    tileset.setTexture(resources.getTexture("tileset.png"));
   }
 
   static constexpr float OccupiedRatio = 0.25f;
@@ -361,7 +363,7 @@ namespace brfd {
     for (int i = 0; i < Size; ++i) {
       for (int j = 0; j < Size; ++j) {
         auto& block = map.data[i][j];
-        m_layer.setTile({ i, j }, static_cast<int>(block.tile));
+        m_layer.setTile({ i, j }, m_tilesetId, static_cast<int>(block.tile));
       }
     }
 

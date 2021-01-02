@@ -79,6 +79,7 @@ namespace brfd {
 
   private:
     gf::TileLayer m_layer;
+    std::size_t m_tilesetId;
 
     gf::Vector2f m_partner = { 0.0f, 0.0f };
     gf::Vector2f m_clothingStore = { 0.0f, 0.0f };
