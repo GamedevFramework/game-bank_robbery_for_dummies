@@ -131,11 +131,10 @@ namespace brfd {
   }
 
   Level::Level(gf::ResourceManager& resources)
-  : m_layer(gf::TileLayer::createOrthogonal({ Size, Size }))
+  : m_layer(gf::TileLayer::createOrthogonal({ Size, Size }, { TileSize, TileSize }))
   , m_tilesetId(m_layer.createTilesetId())
   , m_carTexture(resources.getTexture("cars.png"))
   {
-    m_layer.setTileSize({ TileSize, TileSize });
     gf::Tileset& tileset = m_layer.getTileset(m_tilesetId);
     tileset.setTileSize({ TileSize, TileSize });
     tileset.setTexture(resources.getTexture("tileset.png"));
