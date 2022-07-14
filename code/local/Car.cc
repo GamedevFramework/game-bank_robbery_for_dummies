@@ -24,7 +24,6 @@
 #include <gf/Shapes.h>
 #include <gf/Sprite.h>
 #include <gf/Transform.h>
-#include <gf/Unused.h>
 #include <gf/VectorOps.h>
 
 #include "Messages.h"
@@ -134,9 +133,7 @@ namespace brfd {
     m_body.setAngle(angle);
   }
 
-  void StaticCar::update(gf::Time time) {
-    gf::unused(time);
-
+  void StaticCar::update([[maybe_unused]] gf::Time time) {
     float angle = m_body.getAngle();
     gf::Vector2f velocity = m_body.getVelocity();
     gf::Vector2f normal = gf::unit(angle + gf::Pi2);

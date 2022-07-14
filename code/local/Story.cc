@@ -25,7 +25,6 @@
 #include <gf/Shapes.h>
 #include <gf/Sprite.h>
 #include <gf/Text.h>
-#include <gf/Unused.h>
 #include <gf/VectorOps.h>
 
 #include <gf/Log.h>
@@ -97,9 +96,7 @@ namespace brfd {
     }
   }
 
-  gf::MessageStatus StoryModel::onHeroPosition(gf::Id id, gf::Message *msg) {
-    gf::unused(id);
-
+  gf::MessageStatus StoryModel::onHeroPosition([[maybe_unused]] gf::Id id, gf::Message *msg) {
     if (m_state != State::Running) {
       return gf::MessageStatus::Keep;
     }
@@ -164,8 +161,7 @@ namespace brfd {
     target.draw(compass, states);
   }
 
-  gf::MessageStatus StoryView::onHeroPosition(gf::Id id, gf::Message *msg) {
-    gf::unused(id);
+  gf::MessageStatus StoryView::onHeroPosition([[maybe_unused]] gf::Id id, gf::Message *msg) {
     m_hero = static_cast<HeroPosition*>(msg)->position;
     return gf::MessageStatus::Keep;
   }
